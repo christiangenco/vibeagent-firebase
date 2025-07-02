@@ -1,10 +1,11 @@
 const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
-const admin = require('firebase-admin');
+const { initializeApp } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
-admin.initializeApp();
-const db = admin.firestore();
+initializeApp();
+const db = getFirestore();
 const app = express();
 
 app.use(cors({ origin: true }));
@@ -13,20 +14,25 @@ app.use(express.json());
 function normalizePhoneNumber(phone) {
   if (!phone) return null;
   
+  // Remove all non-digits
   const cleaned = phone.replace(/\D/g, '');
   
+  // Check if it's a valid phone number
+  if (!/^\d+$/.test(cleaned) || cleaned.length < 10) {
+    return null;
+  }
+  
+  // US phone number without country code
   if (cleaned.length === 10) {
     return `+1${cleaned}`;
   }
   
+  // US phone number with country code
   if (cleaned.length === 11 && cleaned.startsWith('1')) {
     return `+${cleaned}`;
   }
   
-  if (cleaned.startsWith('+')) {
-    return cleaned;
-  }
-  
+  // International number - just add + prefix
   return `+${cleaned}`;
 }
 
@@ -82,7 +88,7 @@ app.put('/api/users/:phoneNumber', async (req, res) => {
     const userData = {
       ...req.body,
       phone: phoneNumber,
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: FieldValue.serverTimestamp()
     };
     
     await db.collection('users').doc(phoneNumber).set(userData, { merge: true });
@@ -104,8 +110,8 @@ app.post('/api/users', async (req, res) => {
     const userData = {
       ...req.body,
       phone: phoneNumber,
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      created_at: FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp()
     };
     
     await db.collection('users').doc(phoneNumber).set(userData);
@@ -138,7 +144,7 @@ app.put('/api/households/:householdId', async (req, res) => {
     const { householdId } = req.params;
     const householdData = {
       ...req.body,
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: FieldValue.serverTimestamp()
     };
     
     await db.collection('households').doc(householdId).set(householdData, { merge: true });
@@ -154,8 +160,8 @@ app.post('/api/households', async (req, res) => {
   try {
     const householdData = {
       ...req.body,
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      created_at: FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp()
     };
     
     const docRef = await db.collection('households').add(householdData);
@@ -188,7 +194,7 @@ app.put('/api/jobs/:jobId', async (req, res) => {
     const { jobId } = req.params;
     const jobData = {
       ...req.body,
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: FieldValue.serverTimestamp()
     };
     
     await db.collection('jobs').doc(jobId).set(jobData, { merge: true });
@@ -205,8 +211,8 @@ app.post('/api/jobs', async (req, res) => {
     const jobData = {
       ...req.body,
       status: req.body.status || 'open',
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      created_at: FieldValue.serverTimestamp(),
+      updated_at: FieldValue.serverTimestamp()
     };
     
     if (!jobData.household_id || !jobData.user_id || !jobData.title) {
@@ -254,7 +260,7 @@ exports.test = functions.https.onRequest(async (request, response) => {
       method: request.method,
       headers: request.headers,
       url: request.url,
-      timestamp: admin.firestore.FieldValue.serverTimestamp()
+      timestamp: FieldValue.serverTimestamp()
     };
     
     const docRef = await db.collection('tests').add(testData);

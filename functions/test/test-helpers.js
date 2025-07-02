@@ -40,8 +40,8 @@ async function createTestHousehold(id, data = {}) {
   const householdData = {
     address: '123 Test St',
     timezone: 'America/New_York',
-    owner_user_id: '+1234567890',
-    user_ids: ['+1234567890'],
+    owner_user_id: '+11234567890',
+    user_ids: ['+11234567890'],
     ...data
   };
   
@@ -53,7 +53,7 @@ async function createTestJob(data = {}) {
   const db = admin.firestore();
   const jobData = {
     household_id: 'test-household',
-    user_id: '+1234567890',
+    user_id: '+11234567890',
     title: 'Test Job',
     status: 'open',
     category: 'general',

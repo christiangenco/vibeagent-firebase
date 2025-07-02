@@ -40,7 +40,7 @@ describe('Vibeagent API Tests', () => {
   });
 
   describe('User Endpoints', () => {
-    const testPhone = '+1234567890';
+    const testPhone = '+11234567890';
     const testUser = {
       name: 'Test User',
       email: 'test@example.com'
@@ -116,7 +116,7 @@ describe('Vibeagent API Tests', () => {
         '(123) 456-7890',
         '123-456-7890',
         '11234567890',
-        '+1234567890'
+        '+11234567890'
       ];
 
       for (const format of formats) {
@@ -135,7 +135,7 @@ describe('Vibeagent API Tests', () => {
     const testHousehold = {
       address: '456 Oak Ave',
       timezone: 'America/Chicago',
-      owner_user_id: '+1234567890'
+      owner_user_id: '+11234567890'
     };
 
     test('POST /api/households should create new household', async () => {
@@ -184,7 +184,7 @@ describe('Vibeagent API Tests', () => {
   describe('Job Endpoints', () => {
     const testJob = {
       household_id: 'house123',
-      user_id: '+1234567890',
+      user_id: '+11234567890',
       title: 'Fix plumbing',
       category: 'plumbing'
     };
